@@ -1,0 +1,17 @@
+sudo: rewuired
+services:
+  - docker
+before_install:
+  - docker build -t jaisuriya/react-test -f ./client/Dockerfile.dev ./client
+scripts:
+  - docker run -e CI=true jaisuriya/react-test npm test
+after_success:
+  - docker build -t jaisuriya/multi-client ./client
+  - docker build -t jaisuriya/multi-nginx ./nginx
+  - docker build -t jaisuriya/multi-server ./server
+  - docker build -t jaisuriya/multi-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "DOCKER_ID" --password-stdin
+  - docker push jaisuriya.multi-client
+  - docker push jaisuriya.multi-nginx
+  - docker push jaisuriya.multi-server
+  - docker push jaisuriya.multi-worker
